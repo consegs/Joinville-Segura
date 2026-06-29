@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20260613_0001"; // Timestamp da Versão
+            const APP_VERSION = "20260628_0001"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -559,7 +559,7 @@ function shareJoinvilleSegura() {
         greeting = "Boa noite!";
     }
     
-    const message = `${greeting} Estou recomendando você acessar e compartilhar com seus vizinhos e sua família o JOINVILLE SEGURA, que é uma Plataforma Digital de Segurança Pública comunitária em forma de APLICATIVO e que reúne acesso a todas as FORÇAS DE SEGURANÇA da cidade, tais como, Policia Miliar, Polícia Civil, Guarda Municipal, Policia Rodoviária Federal, Bombeiros e até mesmo a Prefeitura de Joinville. Acesse agora e compartilhe o JOINVILLE SEGURA clicando no LINK https://consegs.github.io/Joinville-Segura/. É mais segurança para sua família, sua rua e seu bairro.`;
+    const message = `${greeting} Estou recomendando você acessar e compartilhar com seus vizinhos e sua família o JOINVILLE SEGURA, que é uma Plataforma Digital de Segurança Pública Comunitária em forma de APLICATIVO e que reúne acesso a todas as FORÇAS DE SEGURANÇA da cidade, tais como, Policia Miliar, Polícia Civil, Guarda Municipal, Policia Rodoviária Federal, Bombeiros e até mesmo a Prefeitura de Joinville. Acesse agora e compartilhe o JOINVILLE SEGURA clicando no LINK https://consegs.github.io/Joinville-Segura/. É mais segurança para sua família, sua rua e seu bairro.`;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 }
@@ -883,7 +883,7 @@ function shareJoinvilleSegura() {
                             ${state.darkMode ? '☀️' : '🌙'}
                         </button>
                     </div>
-                    <p class="text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300 text-center uppercase tracking-tighter">Sistema Comunitário de Segurança Pública</p>
+                    <p class="text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300 text-center uppercase tracking-tighter">Plataforma Digital de Segurança Pública Comunitária</p>
                     <p class="text-lg font-bold text-gray-500 mt-2 text-center">${formattedDate} ${timeStr}</p>
                 </header>
                 
@@ -1094,7 +1094,7 @@ function abrirBombeiros() {
                 
                 <footer class="mt-8 pt-8 border-t text-center space-y-6 animate-fade-in">
                     <div class="flex flex-col gap-4 items-center">
-                        <a href="https://cepcc.ssp.sc.gov.br/" target="_blank" class="text-lg font-bold text-blue-700 dark:text-blue-400 hover:underline">Saiba mais sobre os CONSEGs em cepcc.ssp.sc.gov.br</a>
+                        <a href="https://cepcc.ssp.sc.gov.br/" target="_blank" class="text-lg font-bold text-blue-700 dark:text-blue-400 hover:underline">Saiba mais sobre os CONSEGs em https://cepcc.ssp.sc.gov.br</a>
                         <a href="mailto:ConsegComasaEspinheiros@Gmail.com" class="text-lg font-bold text-blue-700 dark:text-blue-400 hover:underline">Reportar um problema com este aplicativo ou sugerir melhorias</a>
                     </div>
                     
@@ -1543,7 +1543,7 @@ function abrirBombeiros() {
                         
                         <div class="flex flex-wrap items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border border-gray-200">
                             <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-bold text-gray-500 uppercase">Status</label>
+                                <label class="text-[12px] font-bold text-gray-500 uppercase">Status</label>
                                 <select onchange="state.filterStatus = this.value; render();" class="p-2 border rounded-lg font-bold text-sm dark:bg-gray-600 admin-filter-input no-elderly">
                                     <option value="Todos" ${state.filterStatus === 'Todos' ? 'selected' : ''}>Todos os Status</option>
                                     <option value="Aberto" ${state.filterStatus === 'Aberto' ? 'selected' : ''}>Aberto</option>
@@ -1553,21 +1553,21 @@ function abrirBombeiros() {
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-bold text-gray-500 uppercase">Desde</label>
+                                <label class="text-[12px] font-bold text-gray-500 uppercase">Desde</label>
                                 <input type="date" value="${state.filterPeriodStart}" onchange="state.filterPeriodStart = this.value; render();" class="p-2 border rounded-lg text-sm dark:bg-gray-600 admin-filter-input no-elderly">
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-bold text-gray-500 uppercase">Até</label>
+                                <label class="text-[12px] font-bold text-gray-500 uppercase">Até</label>
                                 <input type="date" value="${state.filterPeriodEnd}" onchange="state.filterPeriodEnd = this.value; render();" class="p-2 border rounded-lg text-sm dark:bg-gray-600 admin-filter-input no-elderly">
                             </div>
                         </div>
 
                         <div class="flex flex-wrap gap-2 mb-4">
-                            <div class="bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-xs font-bold shadow-sm">Total: ${stats.total}</div>
-                            <div class="bg-red-100 text-red-800 rounded-full px-3 py-1 text-xs font-bold shadow-sm">Aberto: ${stats.aberto}</div>
-                            <div class="bg-yellow-100 text-yellow-800 rounded-full px-3 py-1 text-xs font-bold shadow-sm">Andamento: ${stats.andamento}</div>
-                            <div class="bg-green-100 text-green-800 rounded-full px-3 py-1 text-xs font-bold shadow-sm">Solucionado: ${stats.solucionado}</div>
-                            <div class="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-xs font-bold shadow-sm">Fechado: ${stats.fechado}</div>
+                            <div class="bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-lg font-bold shadow-sm">Total: ${stats.total}</div>
+                            <div class="bg-red-100 text-red-800 rounded-full px-3 py-1 text-lg font-bold shadow-sm">Aberto: ${stats.aberto}</div>
+                            <div class="bg-yellow-100 text-yellow-800 rounded-full px-3 py-1 text-lg font-bold shadow-sm">Andamento: ${stats.andamento}</div>
+                            <div class="bg-green-100 text-green-800 rounded-full px-3 py-1 text-lg font-bold shadow-sm">Solucionado: ${stats.solucionado}</div>
+                            <div class="bg-gray-100 text-gray-800 rounded-full px-3 py-1 text-lg font-bold shadow-sm">Fechado: ${stats.fechado}</div>
                         </div>
 
                         <div class="grid grid-cols-1 gap-4">
