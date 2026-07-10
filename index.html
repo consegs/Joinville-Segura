@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20260704_0001"; // Timestamp da Versão
+            const APP_VERSION = "20260709_0001"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -559,7 +559,7 @@ function shareJoinvilleSegura() {
         greeting = "Boa noite!";
     }
     
-    const message = `${greeting} Estou recomendando você acessar e compartilhar com seus vizinhos e sua família o JOINVILLE SEGURA, que é uma Plataforma Digital de Segurança Pública Comunitária em forma de APLICATIVO e que reúne acesso a todas as FORÇAS DE SEGURANÇA da cidade, tais como, Policia Miliar, Polícia Civil, Guarda Municipal, Policia Rodoviária Federal, Bombeiros e até mesmo a Prefeitura de Joinville. Acesse agora e compartilhe o JOINVILLE SEGURA clicando no LINK https://consegs.github.io/Joinville-Segura/. É mais segurança para sua família, sua rua e seu bairro.`;
+    const message = `${greeting} Estou recomendando você acessar e compartilhar com seus vizinhos e sua família o JOINVILLE SEGURA, que é uma Plataforma Digital Comunitária de Segurança Pública em forma de APLICATIVO e que reúne acesso a todas as FORÇAS DE SEGURANÇA da cidade, tais como, Policia Miliar, Polícia Civil, Guarda Municipal, Policia Rodoviária Federal, Bombeiros e até mesmo a Prefeitura de Joinville. Acesse agora e compartilhe o JOINVILLE SEGURA clicando no LINK https://consegs.github.io/Joinville-Segura/. É mais segurança para sua família, sua rua e seu bairro.`;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 }
@@ -643,7 +643,8 @@ function shareJoinvilleSegura() {
             adminAttempts: 0,
             presidentAttempts: 0,
             adminPasswordSecret: null,
-            agendaConsegId: ''
+            agendaConsegId: '',
+            emergencyView: 'list'
         };
 
         // Capturar evento de instalação PWA
@@ -806,6 +807,7 @@ function shareJoinvilleSegura() {
             state.presidentView = 'login'; 
             state.filterStatus = 'Todos'; // Resetar filtros ao trocar de tela principal
             state.filterProcessNumber = '';
+            state.emergencyView = 'list';
             render(); 
             
             // Define o scroll alvo para a tela que está entrando
@@ -883,7 +885,7 @@ function shareJoinvilleSegura() {
                             ${state.darkMode ? '☀️' : '🌙'}
                         </button>
                     </div>
-                    <p class="text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300 text-center uppercase tracking-tighter">Plataforma Digital de Segurança Pública Comunitária</p>
+                    <p class="text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300 text-center uppercase tracking-tighter">Plataforma Digital Comunitária de Segurança Pública</p>
                     <p class="text-lg font-bold text-gray-500 mt-2 text-center">${formattedDate} ${timeStr}</p>
                 </header>
                 
@@ -1554,7 +1556,7 @@ function abrirBombeiros() {
                         
                         <div class="flex flex-wrap items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl border border-gray-200">
                             <div class="flex flex-col gap-1">
-                                <label class="text-[12px] font-bold text-gray-500 uppercase">Status</label>
+                                <label class="text-lg font-bold text-gray-500 uppercase">Status</label>
                                 <select onchange="state.filterStatus = this.value; render();" class="p-2 border rounded-lg font-bold text-sm dark:bg-gray-600 admin-filter-input no-elderly">
                                     <option value="Todos" ${state.filterStatus === 'Todos' ? 'selected' : ''}>Todos os Status</option>
                                     <option value="Aberto" ${state.filterStatus === 'Aberto' ? 'selected' : ''}>Aberto</option>
@@ -1564,11 +1566,11 @@ function abrirBombeiros() {
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="text-[12px] font-bold text-gray-500 uppercase">Desde</label>
+                                <label class="text-lg font-bold text-gray-500 uppercase">Desde</label>
                                 <input type="date" value="${state.filterPeriodStart}" onchange="state.filterPeriodStart = this.value; render();" class="p-2 border rounded-lg text-sm dark:bg-gray-600 admin-filter-input no-elderly">
                             </div>
                             <div class="flex flex-col gap-1">
-                                <label class="text-[12px] font-bold text-gray-500 uppercase">Até</label>
+                                <label class="text-lg font-bold text-gray-500 uppercase">Até</label>
                                 <input type="date" value="${state.filterPeriodEnd}" onchange="state.filterPeriodEnd = this.value; render();" class="p-2 border rounded-lg text-sm dark:bg-gray-600 admin-filter-input no-elderly">
                             </div>
                         </div>
@@ -1718,7 +1720,79 @@ function abrirBombeiros() {
             }).then(() => render()).catch(() => { alert("Erro ao salvar."); state.loading = false; render(); });
         }
 
+        window.abrirEnviarSMS = function() {
+            state.emergencyView = 'sms';
+            render();
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            const root = document.getElementById('root');
+            if (root) {
+                root.scrollIntoView({ behavior: 'auto', block: 'start' });
+            }
+        };
+
+        window.enviarSms = function() {
+            const phoneInput = document.getElementById('sms-phone');
+            const textInput = document.getElementById('sms-text');
+            if (!phoneInput || !textInput) return;
+            
+            const phone = phoneInput.value.replace(/\D/g, '');
+            const text = textInput.value.trim();
+            
+            if (!phone) {
+                alert("Por favor, informe o número de celular.");
+                return;
+            }
+            if (phone.length < 10) {
+                alert("Número incompleto! Por favor, informe o DDD + Celular.");
+                return;
+            }
+            if (!text) {
+                alert("Por favor, digite o texto da mensagem.");
+                return;
+            }
+            
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const separator = isIOS ? '&' : '?';
+            const smsUrl = `sms:${phone}${separator}body=${encodeURIComponent(text)}`;
+            
+            window.open(smsUrl, '_blank');
+            textInput.value = '';
+            window.scrollTo(0, 0);
+        };
+
+        function renderSmsScreen() {
+            return `
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl space-y-6 max-w-md mx-auto animate-fade-in">
+                    <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400 uppercase text-center">💬 Enviar SMS</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">DDD + Celular (Ex: 47999999999)</label>
+                            <input type="tel" id="sms-phone" placeholder="99999999999" maxlength="11"
+                                inputmode="numeric" pattern="[0-9]*"
+                                oninput="this.value = this.value.replace(/\\D/g, '')"
+                                class="w-full p-4 border rounded-xl font-bold dark:bg-gray-700 text-center text-2xl no-elderly">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Mensagem (Texto do SMS)</label>
+                            <textarea id="sms-text" placeholder="Digite sua mensagem de emergência..." 
+                                class="w-full p-4 border rounded-xl font-bold dark:bg-gray-700 h-32 no-elderly"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button onclick="enviarSms()" class="bg-blue-600 text-white p-5 rounded-2xl font-bold text-xl hover:bg-blue-700 transition-colors shadow-lg active:scale-95">Enviar</button>
+                            <button onclick="state.emergencyView = 'list'; render(); window.scrollTo(0,0);" class="bg-gray-500 text-white p-5 rounded-xl font-bold text-xl hover:bg-gray-600 transition-colors shadow-lg active:scale-95">Voltar</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderEmergencia() {
+            if (state.emergencyView === 'sms') {
+                return renderSmsScreen();
+            }
+
             const emergencyList = [
                 { label: "Ligar 190 - Polícia Militar", val: "190", color: "bg-red-700" },
                 { label: "Ligar 192 - SAMU", val: "192", color: "bg-red-600" },
@@ -1747,6 +1821,10 @@ function abrirBombeiros() {
                             <span>📞</span>
                         </button>
                     `).join('')}
+                    <button onclick="abrirEnviarSMS()" class="w-full p-6 bg-blue-600 text-white rounded-2xl flex justify-between items-center font-bold text-xl text-left hover:opacity-90 transition-all shadow-md active:scale-95">
+                        <span>Enviar SMS</span>
+                        <span>💬</span>
+                    </button>
                     <button onclick="setScreen('home')" class="w-full p-5 bg-gray-500 text-white rounded-xl font-bold text-lg mt-6 shadow-lg">Voltar ao Menu</button>
                 </div>
             `;
@@ -1754,10 +1832,11 @@ function abrirBombeiros() {
 
         function renderServicos() {
              const servicesList = [
-                { label: "Ligar 0800.410.0036 - Reclamar ou sugerir manutenção de iluminação pública", val: "08004100036", color: "bg-teal-600" },
-                { label: "Ligar 3441.0400 - Agendar recolhimento de móveis, animais mortos, etc.", val: "34410400", color: "bg-emerald-600" },
-                { label: "Ligar 3801.3858 - Descarte TECNOLÓGICO: Computadores, televisores, lixo eletrônico, micro-ondas, etc.", val: "38013858", color: "bg-cyan-700" },
-                { label: "Ligar 3481.5148 - Vigilância Sanitária.", val: "34815148", color: "bg-cyan-400" },
+                { label: "Ligar 0800.410.0036 - Reclamar ou sugerir manutenção de iluminação pública", val: "08004100036", color: "bg-amber-600" },
+                { label: "Ligar 3441.0400 - Agendar recolhimento de móveis, animais mortos, etc.", val: "34410400", color: "bg-orange-600" },
+                { label: "Ligar 3801.3858 - Descarte TECNOLÓGICO: Computadores, televisores, lixo eletrônico, micro-ondas, etc.", val: "38013858", color: "bg-indigo-600" },
+                { label: "Ligar 3481.5148 - Vigilância Sanitária.", val: "34815148", color: "bg-fuchsia-700" },
+                { label: "Ligar 98919-2823 - Bem-Estar e Proteção Animal - 24 horas.", val: "989192823", color: "bg-emerald-600" },
                 { label: "Ligar 156 - Ouvidoria da Prefeitura de Joinville", val: "156", color: "bg-slate-600" }
             ];
             
