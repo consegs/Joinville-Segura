@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20260709_0001"; // Timestamp da Versão
+            const APP_VERSION = "20260709_0002"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -876,7 +876,10 @@ function shareJoinvilleSegura() {
             const timeStr = state.currentTime.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
             const formattedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
+            const isSmsScreen = state.screen === 'emergencia' && state.emergencyView === 'sms';
+
             let content = `
+                ${isSmsScreen ? '' : `
                 <header class="text-center mb-8 animate-fade-in">
                     <div class="flex justify-between items-center mb-2">
                         <div class="w-10"></div>
@@ -888,6 +891,7 @@ function shareJoinvilleSegura() {
                     <p class="text-xl md:text-2xl font-bold text-gray-700 dark:text-gray-300 text-center uppercase tracking-tighter">Plataforma Digital Comunitária de Segurança Pública</p>
                     <p class="text-lg font-bold text-gray-500 mt-2 text-center">${formattedDate} ${timeStr}</p>
                 </header>
+                `}
                 
                 <main id="app-main">
                     ${renderScreen()}
@@ -1764,8 +1768,8 @@ function abrirBombeiros() {
 
         function renderSmsScreen() {
             return `
-                <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl space-y-6 max-w-md mx-auto animate-fade-in">
-                    <h2 class="text-3xl font-bold text-blue-600 dark:text-blue-400 uppercase text-center">💬 Enviar SMS</h2>
+                <div class="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-3xl shadow-xl space-y-4 max-w-md mx-auto animate-fade-in mt-0">
+                    <h2 class="text-2xl md:text-3xl font-bold text-blue-600 dark:text-blue-400 uppercase text-center">💬 Enviar SMS</h2>
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">DDD + Celular (Ex: 47999999999)</label>
@@ -1777,10 +1781,10 @@ function abrirBombeiros() {
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Mensagem (Texto do SMS)</label>
                             <textarea id="sms-text" placeholder="Digite sua mensagem de emergência..." 
-                                class="w-full p-4 border rounded-xl font-bold dark:bg-gray-700 h-32 no-elderly"></textarea>
+                                class="w-full p-4 border rounded-xl font-bold dark:bg-gray-700 h-24 md:h-32 no-elderly"></textarea>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            <button onclick="enviarSms()" class="bg-blue-600 text-white p-5 rounded-2xl font-bold text-xl hover:bg-blue-700 transition-colors shadow-lg active:scale-95">Enviar</button>
+                            <button onclick="enviarSms()" class="bg-blue-600 text-white p-5 rounded-2xl font-bold text-xl hover:bg-blue-700 transition-colors shadow-lg active:scale-95">Continuar</button>
                             <button onclick="state.emergencyView = 'list'; render(); window.scrollTo(0,0);" class="bg-gray-500 text-white p-5 rounded-xl font-bold text-xl hover:bg-gray-600 transition-colors shadow-lg active:scale-95">Voltar</button>
                         </div>
                     </div>
