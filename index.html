@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20260710_0001"; // Timestamp da Versão
+            const APP_VERSION = "20260710_0002"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -1809,7 +1809,13 @@ function abrirBombeiros() {
 
                     const textInput = document.getElementById('sms-text');
                     if (textInput) {
-                        textInput.value = endereco;
+                        let msg = "Preciso de ajuda: estou na rua " + (endereco || "");
+                        if (lat !== null && lng !== null) {
+                            msg += " - esta é minha localização: https://www.google.com/maps?q=" + lat + "," + lng;
+                        } else {
+                            msg += " - esta é minha localização: https://www.google.com/maps?q=" + encodeURIComponent(endereco || "");
+                        }
+                        textInput.value = msg;
                     }
 
                     window.enviarSms();
@@ -1873,11 +1879,8 @@ function abrirBombeiros() {
                                 class="w-full p-4 border rounded-xl font-bold dark:bg-gray-700 h-24 md:h-32 no-elderly"></textarea>
                         </div>
                         <div class="flex flex-col gap-3">
-                            <button onclick="window.enviarSmsComLocalizacao()" class="bg-lime-600 text-white p-5 rounded-2xl font-bold text-xl hover:bg-lime-700 transition-colors shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                                📍 Minha localização
-                            </button>
-                            <button onclick="window.enviarSmsCompartilharJoinvilleSegura()" class="bg-blue-900 text-white p-5 rounded-2xl font-bold text-xl hover:bg-blue-950 transition-colors shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                                📢 Compartilhar JOINVILLE SEGURA
+                            <button onclick="window.enviarSmsComLocalizacao()" class="bg-lime-600 text-white p-5 rounded-2xl font-bold text-xl hover:bg-lime-700 transition-colors shadow-lg active:scale-95 flex items-center justify-center gap-2 text-center">
+                                📍 Compartilhar minha localização pedindo ajuda
                             </button>
                             <button onclick="state.emergencyView = 'list'; render(); window.scrollTo(0,0);" class="bg-gray-500 text-white p-5 rounded-xl font-bold text-xl hover:bg-gray-600 transition-colors shadow-lg active:scale-95">
                                 Voltar
