@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20260909_0003"; // Timestamp da Versão
+            const APP_VERSION = "20260911_0002"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -148,6 +148,21 @@
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-lime-600 border-t-transparent"></div>
             <p class="text-xl font-black text-gray-800 dark:text-gray-100 uppercase">Aguarde um momento...</p>
             <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">Obtendo sua localização aproximada e buscando o endereço completo...</p>
+        </div>
+    </div>
+
+    <!-- Modal de Instalação / Criação de Atalho -->
+    <div id="install-modal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] hidden p-4">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl space-y-5 max-w-sm w-full animate-fade-in flex flex-col items-center text-center">
+            <div id="install-modal-icon" class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+            <p id="install-modal-text" class="text-xl font-bold text-gray-800 dark:text-gray-100 leading-snug">
+                Aguarde... estamos criando atalho para o JOINVILLE SEGURA no menu inicial...
+            </p>
+            <div id="install-modal-actions" class="w-full hidden">
+                <button onclick="window.close()" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-colors shadow-lg active:scale-95">
+                    Ir para tela inicial
+                </button>
+            </div>
         </div>
     </div>
 
@@ -662,16 +677,93 @@ function shareJoinvilleSegura() {
             state.showInstallBtn = false;
             deferredPrompt = null;
             render();
+
+            const installModal = document.getElementById('install-modal');
+            const installModalIcon = document.getElementById('install-modal-icon');
+            const installModalText = document.getElementById('install-modal-text');
+            const installModalActions = document.getElementById('install-modal-actions');
+
+            if (installModal && !installModal.classList.contains('hidden')) {
+                if (installModalIcon) {
+                    installModalIcon.className = "text-5xl";
+                    installModalIcon.innerHTML = "✅";
+                }
+                if (installModalText) {
+                    installModalText.innerText = "Atalho para o JOINVILLE SEGURA criado com sucesso na sua tela inicial!";
+                }
+                if (installModalActions) {
+                    installModalActions.classList.remove('hidden');
+                }
+                setTimeout(() => {
+                    alert("Atalho para o JOINVILLE SEGURA criado com sucesso na sua tela inicial!");
+                    window.close();
+                }, 1000);
+            }
         });
 
         async function installApp() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log('User choice outcome:', outcome);
-            state.showInstallBtn = false;
-            deferredPrompt = null;
-            render();
+            const installModal = document.getElementById('install-modal');
+            const installModalIcon = document.getElementById('install-modal-icon');
+            const installModalText = document.getElementById('install-modal-text');
+            const installModalActions = document.getElementById('install-modal-actions');
+
+            if (installModal) {
+                if (installModalIcon) {
+                    installModalIcon.className = "inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent";
+                    installModalIcon.innerHTML = "";
+                }
+                if (installModalText) {
+                    installModalText.innerText = "Aguarde... estamos criando atalho para o JOINVILLE SEGURA no menu inicial...";
+                }
+                if (installModalActions) {
+                    installModalActions.classList.add('hidden');
+                }
+                installModal.classList.remove('hidden');
+            }
+
+            const finishInstallAndExit = () => {
+                if (installModalIcon) {
+                    installModalIcon.className = "text-5xl";
+                    installModalIcon.innerHTML = "✅";
+                }
+                if (installModalText) {
+                    installModalText.innerText = "Atalho para o JOINVILLE SEGURA criado com sucesso na sua tela inicial!";
+                }
+                if (installModalActions) {
+                    installModalActions.classList.remove('hidden');
+                }
+                state.showInstallBtn = false;
+                deferredPrompt = null;
+                render();
+
+                setTimeout(() => {
+                    alert("Atalho para o JOINVILLE SEGURA criado com sucesso na sua tela inicial!");
+                    window.close();
+                }, 1200);
+            };
+
+            if (deferredPrompt) {
+                try {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('User choice outcome:', outcome);
+                    if (outcome === 'accepted') {
+                        setTimeout(() => {
+                            finishInstallAndExit();
+                        }, 1200);
+                    } else {
+                        if (installModal) installModal.classList.add('hidden');
+                    }
+                } catch (err) {
+                    console.error('Erro ao instalar PWA:', err);
+                    finishInstallAndExit();
+                }
+            } else {
+                // Fallback caso deferredPrompt não esteja disponível (simulação/navegador direto)
+                setTimeout(() => {
+                    finishInstallAndExit();
+                }, 2000);
+            }
         }
 
         // --- SEGURANÇA (Panic Mode Silencioso via API) ---
