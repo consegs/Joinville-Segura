@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20260911_0002"; // Timestamp da Versão
+            const APP_VERSION = "20260913_0001"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -1195,12 +1195,15 @@ function abrirBombeiros() {
 
                 <div class="mt-6 bg-gray-100 dark:bg-gray-800 p-6 rounded-3xl border-2 border-dashed border-gray-400 animate-fade-in">
                     <h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-primary dark:text-blue-400">💬 Fale conosco</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <button onclick="window.location.href='mailto:ConsegComasaEspinheiros@Gmail.com'" class="bg-slate-700 text-white p-4 rounded-xl font-bold hover:bg-slate-800 transition-colors flex items-center justify-center text-center">
                             Reportar um problema com este aplicativo ou sugerir melhorias
                         </button>
-                        <button onclick="window.open('https://api.whatsapp.com/send?phone=554730343809', '_blank')" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                        <button onclick="window.open('https://api.whatsapp.com/send?phone=554730343809', '_blank')" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors text-center">
                             💬 Fale conosco via WhatsApp 4730343809
+                        </button>
+                        <button onclick="window.open('https://chat.whatsapp.com/E4IpBxL5kbm6xBeX8vzDjB', '_blank')" class="bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors text-center">
+                            Receber diariamente dicas de PREVENÇÃO e SEGURANÇA (via Grupo WhatApp)
                         </button>
                     </div>
                 </div>
