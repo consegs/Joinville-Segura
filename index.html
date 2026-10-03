@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20260913_0001"; // Timestamp da Versão
+            const APP_VERSION = "20261004_0001"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -1982,7 +1982,7 @@ function abrirBombeiros() {
                                 oninput="this.value = this.value.replace(/\\\\D/g, '')"
                                 class="w-full p-4 border rounded-xl font-bold dark:bg-gray-700 text-center text-2xl no-elderly">
                         </div>
-                        <button onclick="window.enviarSmsComLocalizacao()" class="w-full bg-lime-600 text-white p-5 rounded-2xl font-bold text-xl hover:bg-lime-700 transition-colors shadow-lg active:scale-95 flex items-center justify-center gap-2 text-center">
+                        <button onclick="window.enviarSmsComLocalizacao()" class="w-full bg-lime-600 text-white p-4 rounded-2xl font-bold text-sm sm:text-base leading-tight hover:bg-lime-700 transition-colors shadow-lg active:scale-95 flex items-center justify-center gap-2 text-center">
                             📍 ENVIAR minha LOCALIZAÇÃO pedindo AJUDA
                         </button>
                         <div>
