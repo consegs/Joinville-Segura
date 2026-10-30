@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20261004_0001"; // Timestamp da Versão
+            const APP_VERSION = "20261030_0001"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -553,17 +553,78 @@ function closeServiceSelectionModal() {
 }
 
 function findVeicularService(type) {
-    let query = "";
+    let termo = "";
     switch(type) {
-        case 'GUINCHOS': query = "Localize GUINCHOS 24 horas próximos a mim"; break;
-        case 'MECANICAS': query = "Localize MECÂNICAS 24 horas próximas a mim"; break;
-        case 'AUTOELETRICAS': query = "Localize AUTOELÉTRICAS 24 horas próximas a mim"; break;
-        case 'BORRACHARIAS': query = "Localize BORRACHARIAS 24 horas próximas a mim"; break;
+        case 'GUINCHOS': termo = "guinchos 24 horas"; break;
+        case 'MECANICAS': termo = "oficina mecanica 24 horas"; break;
+        case 'AUTOELETRICAS': termo = "auto eletrica 24 horas"; break;
+        case 'BORRACHARIAS': termo = "borracharia 24 horas"; break;
+        default: termo = "guinchos 24 horas";
     }
-    if (query) {
-        window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank');
-        closeServiceSelectionModal();
+
+    closeServiceSelectionModal();
+
+    const loadingModal = document.getElementById('loading-modal');
+    if (loadingModal) {
+        loadingModal.classList.remove('hidden');
     }
+
+    const abrirUrl = (url) => {
+        if (loadingModal) loadingModal.classList.add('hidden');
+        const win = window.open(url, '_blank');
+        if (!win || win.closed || typeof win.closed === 'undefined') {
+            window.location.href = url;
+        }
+    };
+
+    const fallback = () => {
+        abrirUrl(`https://www.google.com/search?q=${encodeURIComponent("Localize " + termo + " mais próximos a mim")}`);
+    };
+
+    if (!navigator.geolocation) {
+        fallback();
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            currentLat = lat;
+            currentLng = lng;
+
+            let localCidade = "";
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2500);
+                const resp = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&zoom=14&addressdetails=1&format=json`,
+                    { signal: controller.signal }
+                );
+                clearTimeout(timeoutId);
+                const data = await resp.json();
+                if (data && data.address) {
+                    localCidade = data.address.city || data.address.town || data.address.village || data.address.municipality || "";
+                }
+            } catch (e) {
+                console.warn("Geocoding reverso de cidade não disponível ou demorou:", e);
+            }
+
+            const queryTermo = localCidade ? `${termo} em ${localCidade}` : termo;
+            const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(queryTermo)}/@${lat},${lng},14z`;
+            abrirUrl(mapsUrl);
+        },
+        (err) => {
+            console.warn("GPS não obtido:", err);
+            if (currentLat !== null && currentLng !== null) {
+                const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(termo)}/@${currentLat},${currentLng},14z`;
+                abrirUrl(mapsUrl);
+            } else {
+                fallback();
+            }
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 }
+    );
 }
 
 function shareJoinvilleSegura() {
