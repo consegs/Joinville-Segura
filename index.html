@@ -7,7 +7,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20261030_0001"; // Timestamp da Versão
+            const APP_VERSION = "20261111_0001"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -138,6 +138,49 @@
                     <span class="text-2xl">🛞</span> BORRACHARIAS
                 </button>
                 <button onclick="closeServiceSelectionModal()" class="bg-gray-500 text-white p-4 rounded-xl font-bold text-lg mt-2">Sair / Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Compartilhar JOINVILLE SEGURA (WhatsApp / SMS) -->
+    <div id="share-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] hidden p-4">
+        <!-- View 1: Opções de compartilhamento -->
+        <div id="share-options-view" class="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl space-y-6 max-w-sm w-full animate-fade-in">
+            <h2 class="text-2xl font-bold text-primary dark:text-blue-400 uppercase text-center">Compartilhe o JOINVILLE SEGURA</h2>
+            <div class="flex flex-col gap-4">
+                <button onclick="shareJoinvilleSeguraViaWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white p-5 rounded-xl font-bold text-lg flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-md">
+                    <span class="text-2xl">💬</span> Via WhatsApp
+                </button>
+                <button onclick="openShareSmsView()" class="bg-blue-600 hover:bg-blue-700 text-white p-5 rounded-xl font-bold text-lg flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-md">
+                    <span class="text-2xl">✉️</span> Via SMS
+                </button>
+                <button onclick="closeShareModal()" class="bg-gray-500 hover:bg-gray-600 text-white p-4 rounded-xl font-bold text-lg mt-2 transition-colors">
+                    Voltar
+                </button>
+            </div>
+        </div>
+
+        <!-- View 2: Envio de SMS -->
+        <div id="share-sms-view" class="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-2xl space-y-6 max-w-sm w-full animate-fade-in hidden">
+            <h2 class="text-2xl font-bold text-primary dark:text-blue-400 uppercase text-center">Compartilhar via SMS</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Digite o DDD + Celular (somente números)</label>
+                    <input type="text" id="share-sms-number" maxlength="11" placeholder="99999999999" 
+                        inputmode="numeric" pattern="[0-9]*"
+                        oninput="this.value = this.value.replace(/\D/g, '')"
+                        onkeydown="if(event.key === 'Enter') sendShareSms();"
+                        class="w-full p-4 border rounded-xl font-bold dark:bg-gray-700 text-center text-2xl">
+                    <p id="share-sms-feedback" class="text-xs text-green-600 dark:text-green-400 font-bold mt-2 text-center hidden"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="sendShareSms()" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-xl font-bold text-lg shadow-md active:scale-95 transition-transform">
+                        Enviar
+                    </button>
+                    <button onclick="backToShareOptions()" class="bg-gray-500 hover:bg-gray-600 text-white p-4 rounded-xl font-bold text-lg transition-colors">
+                        Voltar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -627,7 +670,44 @@ function findVeicularService(type) {
     );
 }
 
-function shareJoinvilleSegura() {
+function openShareModal() {
+    const modal = document.getElementById('share-modal');
+    const optView = document.getElementById('share-options-view');
+    const smsView = document.getElementById('share-sms-view');
+    const feedback = document.getElementById('share-sms-feedback');
+    if (feedback) feedback.classList.add('hidden');
+    if (optView) optView.classList.remove('hidden');
+    if (smsView) smsView.classList.add('hidden');
+    if (modal) modal.classList.remove('hidden');
+}
+
+function closeShareModal() {
+    const modal = document.getElementById('share-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function openShareSmsView() {
+    const optView = document.getElementById('share-options-view');
+    const smsView = document.getElementById('share-sms-view');
+    const input = document.getElementById('share-sms-number');
+    const feedback = document.getElementById('share-sms-feedback');
+    if (feedback) feedback.classList.add('hidden');
+    if (input) input.value = '';
+    if (optView) optView.classList.add('hidden');
+    if (smsView) smsView.classList.remove('hidden');
+    if (input) setTimeout(() => input.focus(), 150);
+}
+
+function backToShareOptions() {
+    const optView = document.getElementById('share-options-view');
+    const smsView = document.getElementById('share-sms-view');
+    const feedback = document.getElementById('share-sms-feedback');
+    if (feedback) feedback.classList.add('hidden');
+    if (smsView) smsView.classList.add('hidden');
+    if (optView) optView.classList.remove('hidden');
+}
+
+function getShareJoinvilleSeguraMessage() {
     const hours = new Date().getHours();
     let greeting = "Olá!";
     if (hours >= 5 && hours < 12) {
@@ -638,9 +718,51 @@ function shareJoinvilleSegura() {
         greeting = "Boa noite!";
     }
     
-    const message = `${greeting} Estou recomendando você acessar e compartilhar com seus vizinhos e sua família o JOINVILLE SEGURA, que é uma Plataforma Digital Comunitária de Segurança Pública em forma de APLICATIVO e que reúne acesso a todas as FORÇAS DE SEGURANÇA da cidade, tais como, Policia Miliar, Polícia Civil, Guarda Municipal, Policia Rodoviária Federal, Bombeiros e até mesmo a Prefeitura de Joinville. Acesse agora e compartilhe o JOINVILLE SEGURA clicando no LINK https://consegs.github.io/Joinville-Segura/. É mais segurança para sua família, sua rua e seu bairro.`;
+    return `${greeting} Estou recomendando você acessar e compartilhar com seus vizinhos e sua família o JOINVILLE SEGURA, que é uma Plataforma Digital Comunitária de Segurança Pública em forma de APLICATIVO e que reúne acesso a todas as FORÇAS DE SEGURANÇA da cidade, tais como, Policia Miliar, Polícia Civil, Guarda Municipal, Policia Rodoviária Federal, Bombeiros e até mesmo a Prefeitura de Joinville. Acesse agora e compartilhe o JOINVILLE SEGURA clicando no LINK https://consegs.github.io/Joinville-Segura/. É mais segurança para sua família, sua rua e seu bairro.`;
+}
+
+function shareJoinvilleSegura() {
+    openShareModal();
+}
+
+function shareJoinvilleSeguraViaWhatsApp() {
+    const message = getShareJoinvilleSeguraMessage();
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+    openShareSmsView();
+}
+
+function sendShareSms() {
+    const input = document.getElementById('share-sms-number');
+    const phone = input ? input.value.replace(/\D/g, '') : '';
+    
+    if (!phone) {
+        alert("Por favor, informe o número de celular.");
+        if (input) input.focus();
+        return;
+    }
+    if (phone.length < 10) {
+        alert("Número incompleto! Por favor, digite no formato 99999999999 (DDD + número).");
+        if (input) input.focus();
+        return;
+    }
+    
+    const message = getShareJoinvilleSeguraMessage();
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const separator = isIOS ? '&' : '?';
+    const smsUrl = `sms:${phone}${separator}body=${encodeURIComponent(message)}`;
+    window.open(smsUrl, '_blank');
+    
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    
+    const feedback = document.getElementById('share-sms-feedback');
+    if (feedback) {
+        feedback.innerText = "SMS preparado! Digite o próximo número para compartilhar novamente.";
+        feedback.classList.remove('hidden');
+    }
 }
 
 
@@ -1097,28 +1219,28 @@ function shareJoinvilleSegura() {
             }
 
             buttons.push(
+                { label: "Telefones de EMERGÊNCIA", color: "bg-rose-600", icon: "🚨", click: "setScreen('emergencia')" },
                 { label: "Abrir OUVIDORIA na Prefeitura de Joinville (JOINVILLE FÁCIL)", color: "bg-indigo-600", icon: "🏢", click: "window.open('https://facil.joinville.sc.gov.br/')" },
                 { label: "Registrar no CONSEG a OUVIDORIA da Prefeitura de Joinville", color: "bg-orange-600", icon: "📝", click: "setScreen('ouvidoria')" },
                 { label: "APP PMSC Cidadão da Polícia Militar - Fazer Denúncias", color: "bg-emerald-600", icon: "👮", click: "abrirPMSC()" },
                 { label: "Registrar Boletim de Ocorrência (B.O.) na Polícia Civil - Fazer Denúncias", color: "bg-red-600", icon: "📑", click: "window.open('https://delegaciavirtual.sc.gov.br/')" },
-                { label: "Polícia Científica (Obter IDENTIDADE)", color: "bg-slate-600", icon: "🆔", click: "window.open('https://www.policiacientifica.sc.gov.br/', '_blank')" },
-                { label: "APP Corpo de Bombeiros Militar", color: "bg-red-700", icon: "🚒", click: "abrirBombeiros()" },
-                { label: "APP SINESP Cidadão (Consultar veículo pela placa)", color: "bg-sky-600", icon: "🚗", click: "abrirSinesp()" },
                 { label: "Polícia Rodoviária Federal - Acidente sem vítimas", color: "bg-blue-700", icon: "🚔", click: "window.open('https://comunicante.prf.gov.br/declarante/declaracao', '_blank')" },
                 { label: "Sistema SINAL da PRF - Incluir veículo roubado", color: "bg-rose-900", icon: "🚔", click: "window.open('https://sicop.prf.gov.br/sicop/sinal', '_blank')" },
-                { label: "Defesa Civil SC", color: "bg-amber-500", icon: "🛡️", click: "window.open('https://www.defesacivil.sc.gov.br/', '_blank')" },
-                { label: "Detran SC", color: "bg-blue-900", icon: "🪪", click: "window.open('https://www.detran.sc.gov.br/', '_blank')" },
+                { label: "Polícia Científica (Obter IDENTIDADE)", color: "bg-slate-600", icon: "🆔", click: "window.open('https://www.policiacientifica.sc.gov.br/', '_blank')" },
+                { label: "Denunciar SITES de INTERNET (Crimes contra direitos humanos)", color: "bg-red-800", icon: "🌐", click: "window.open('https://new.safernet.org.br/denuncie', '_blank')" },
+                { label: "APP Corpo de Bombeiros Militar", color: "bg-red-700", icon: "🚒", click: "abrirBombeiros()" },
+                { label: "APP SINESP Cidadão (Consultar veículo pela placa)", color: "bg-sky-600", icon: "🚗", click: "abrirSinesp()" },
+                { label: "APP BIKE REGISTRADA", color: "bg-emerald-900", icon: "🚲", click: "abrirBikeRegistrada()" },
                 { label: "APP ÁGUAS DE JOINVILLE", color: "bg-sky-600", icon: "💧", click: "window.open('https://aguasdejoinville.com.br/novoatendimento/#/configuration/', '_blank')" },
                 { label: "APP CELESC", color: "bg-yellow-600", icon: "⚡", click: "abrirCelesc()" },
-                { label: "APP BIKE REGISTRADA", color: "bg-emerald-900", icon: "🚲", click: "abrirBikeRegistrada()" },
-                { label: "Telefones de EMERGÊNCIA", color: "bg-rose-600", icon: "🚨", click: "setScreen('emergencia')" },
-                { label: "Telefones de SERVIÇOS", color: "bg-teal-600", icon: "🛠️", click: "setScreen('servicos')" },
-                { label: "Denunciar SITES de INTERNET (Crimes contra direitos humanos)", color: "bg-red-800", icon: "🌐", click: "window.open('https://new.safernet.org.br/denuncie', '_blank')" },
-                { label: "Agenda do CONSEG", color: "bg-purple-600", icon: "📅", click: "setScreen('agenda')" },
+                { label: "Defesa Civil SC", color: "bg-amber-500", icon: "🛡️", click: "window.open('https://www.defesacivil.sc.gov.br/', '_blank')" },
+                { label: "Detran SC", color: "bg-blue-900", icon: "🪪", click: "window.open('https://www.detran.sc.gov.br/', '_blank')" },
                 { label: "Inteligência Artificial ChatGPT (pergunte qualquer coisa)", color: "bg-cyan-600", icon: "🤖", click: "window.open('https://chatgpt.com/')" },
                 { label: "Descobrir minha Localização aproximada", color: "bg-lime-600", icon: "📍", click: "openGoogleMaps()" },
                 { label: "Localizar GUINCHOS, MECÂNICAS, AUTOELÉTRICAS ou BORRACHARIAS - 24 horas", color: "bg-amber-600", icon: "🛠️", click: "openServiceSelectionModal()" },
                 { label: "Enviar mensagem para um número WhatsApp", color: "bg-green-500", icon: "💬", click: "sendWhatsAppMessage()" },
+                { label: "Telefones de SERVIÇOS", color: "bg-teal-600", icon: "🛠️", click: "setScreen('servicos')" },
+                { label: "Agenda do CONSEG", color: "bg-purple-600", icon: "📅", click: "setScreen('agenda')" },
                 { label: "Compartilhe o JOINVILLE SEGURA", color: "bg-blue-900", icon: "📢", click: "shareJoinvilleSegura()" }
             );
 
