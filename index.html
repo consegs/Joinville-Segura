@@ -8,7 +8,7 @@
     <script>
         // Lógica para forçar recarregamento no Celular se houver nova versão
         (function() {
-            const APP_VERSION = "20261120_0002"; // Timestamp da Versão
+            const APP_VERSION = "20261122_0001"; // Timestamp da Versão
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             if (isMobile) {
@@ -1255,52 +1255,186 @@ function sendShareSms() {
             }
         }
 
-        function renderHome() {
-            const buttons = [];
-            
-            if (state.showInstallBtn) {
-                buttons.push({ 
-                    label: "Instalar acesso ao JOINVILLE SEGURA", 
-                    color: "bg-primary", 
-                    icon: "📲", 
-                    click: "installApp()" 
-                });
+        function scrollToHomeSection(sectionId) {
+            const el = document.getElementById(sectionId);
+            if (!el) return;
+            const currentY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
+            const targetY = Math.max(0, currentY + el.getBoundingClientRect().top - 12);
+            window.scrollTo(0, targetY);
+            document.documentElement.scrollTop = targetY;
+            document.body.scrollTop = targetY;
+            el.classList.add('ring-4', 'ring-blue-500');
+            setTimeout(() => {
+                el.classList.remove('ring-4', 'ring-blue-500');
+            }, 1200);
+            if (typeof updateHomeFastScrollbar === 'function') {
+                requestAnimationFrame(() => updateHomeFastScrollbar());
             }
+        }
 
-            buttons.push(
-                { label: "Telefones de EMERGÊNCIA", color: "bg-rose-600", icon: "🚨", click: "setScreen('emergencia')" },
-                { label: "Telefones de SERVIÇOS", color: "bg-teal-600", icon: "🛠️", click: "setScreen('servicos')" },
-                { label: "APP PMSC Cidadão da Polícia Militar - Fazer Denúncias", color: "bg-emerald-600", icon: "👮", click: "abrirPMSC()" },
-                { label: "Registrar Boletim de Ocorrência (B.O.) na Polícia Civil - Fazer Denúncias", color: "bg-red-600", icon: "📑", click: "window.open('https://delegaciavirtual.sc.gov.br/')" },
-                { label: "Polícia Rodoviária Federal - Acidente sem vítimas", color: "bg-blue-700", icon: "🚔", click: "window.open('https://comunicante.prf.gov.br/declarante/declaracao', '_blank')" },
-                { label: "Sistema SINAL da PRF - Incluir veículo roubado", color: "bg-rose-900", icon: "🚔", click: "window.open('https://sicop.prf.gov.br/sicop/sinal', '_blank')" },
-                { label: "Polícia Científica (Obter IDENTIDADE)", color: "bg-slate-600", icon: "🆔", click: "window.open('https://www.policiacientifica.sc.gov.br/', '_blank')" },
-                { label: "Denunciar SITES de INTERNET (Crimes contra direitos humanos)", color: "bg-red-800", icon: "🌐", click: "window.open('https://new.safernet.org.br/denuncie', '_blank')" },
-                { label: "APP Corpo de Bombeiros Militar", color: "bg-red-700", icon: "🚒", click: "abrirBombeiros()" },
-                { label: "APP SINESP Cidadão (Consultar veículo pela placa)", color: "bg-sky-600", icon: "🚗", click: "abrirSinesp()" },
-                { label: "APP BIKE REGISTRADA", color: "bg-emerald-900", icon: "🚲", click: "abrirBikeRegistrada()" },
-                { label: "APP ÁGUAS DE JOINVILLE", color: "bg-sky-600", icon: "💧", click: "window.open('https://aguasdejoinville.com.br/novoatendimento/#/configuration/', '_blank')" },
-                { label: "APP CELESC", color: "bg-yellow-600", icon: "⚡", click: "abrirCelesc()" },
-                { label: "Defesa Civil SC", color: "bg-amber-500", icon: "🛡️", click: "window.open('https://www.defesacivil.sc.gov.br/', '_blank')" },
-                { label: "Detran SC", color: "bg-blue-900", icon: "🪪", click: "window.open('https://www.detran.sc.gov.br/', '_blank')" },
-                { label: "Inteligência Artificial ChatGPT (pergunte qualquer coisa)", color: "bg-cyan-600", icon: "🤖", click: "window.open('https://chatgpt.com/')" },
-                { label: "Descobrir minha Localização aproximada", color: "bg-lime-600", icon: "📍", click: "openGoogleMaps()" },
-                { label: "Localizar GUINCHOS, MECÂNICAS, AUTOELÉTRICAS ou BORRACHARIAS - 24 horas", color: "bg-amber-600", icon: "🛠️", click: "openServiceSelectionModal()" },
-                { label: "Documentos ACHADOS e PERDIDOS", color: "bg-amber-700", icon: "📄", click: "window.open('https://www.acheidocs.com.br/', '_blank')" },
-                { label: "Enviar mensagem para um número WhatsApp", color: "bg-green-500", icon: "💬", click: "sendWhatsAppMessage()" },
-                { label: "Abrir OUVIDORIA na Prefeitura de Joinville (JOINVILLE FÁCIL)", color: "bg-indigo-600", icon: "🏢", click: "window.open('https://facil.joinville.sc.gov.br/')" },
-                { label: "Registrar no CONSEG a OUVIDORIA da Prefeitura de Joinville", color: "bg-orange-600", icon: "📝", click: "setScreen('ouvidoria')" },
-                { label: "Agenda do CONSEG", color: "bg-purple-600", icon: "📅", click: "setScreen('agenda')" },
-                { label: "Compartilhe o JOINVILLE SEGURA", color: "bg-blue-900", icon: "📢", click: "shareJoinvilleSegura()" }
-            );
+        function scrollHomeToTop() {
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            if (typeof updateHomeFastScrollbar === 'function') {
+                requestAnimationFrame(() => updateHomeFastScrollbar());
+            }
+        }
+
+        function renderHome() {
+            const quickMenu = [
+                { label: "Emergências", icon: "🚨", color: "bg-rose-600 hover:bg-rose-700", click: "setScreen('emergencia')" },
+                { label: "Segurança e Denúncias", icon: "👮", color: "bg-emerald-700 hover:bg-emerald-800", click: "scrollToHomeSection('sec-emergencias')" },
+                { label: "Trânsito e Veículos", icon: "🚗", color: "bg-sky-700 hover:bg-sky-800", click: "scrollToHomeSection('sec-transito')" },
+                { label: "Documentos", icon: "🆔", color: "bg-slate-700 hover:bg-slate-800", click: "scrollToHomeSection('sec-documentos')" },
+                { label: "Serviços Públicos", icon: "🏠", color: "bg-teal-700 hover:bg-teal-800", click: "scrollToHomeSection('sec-servicos')" },
+                { label: "Proteção Patrimonial", icon: "🚲", color: "bg-emerald-900 hover:bg-emerald-950", click: "scrollToHomeSection('sec-patrimonio')" },
+                { label: "Utilidades", icon: "📱", color: "bg-cyan-700 hover:bg-cyan-800", click: "scrollToHomeSection('sec-utilidades')" },
+                { label: "CONSEG e Comunidade", icon: "📣", color: "bg-purple-700 hover:bg-purple-800", click: "scrollToHomeSection('sec-conseg')" }
+            ];
+
+            const sections = [
+                {
+                    id: "sec-emergencias",
+                    title: "🚨 1. Emergências e Segurança Pública",
+                    subtitle: "Uso imediato em situações de risco ou denúncia.",
+                    border: "border-rose-600",
+                    badge: "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-200",
+                    buttons: [
+                        { label: "Telefones de EMERGÊNCIA", color: "bg-rose-600", icon: "🚨", click: "setScreen('emergencia')" },
+                        { label: "APP PMSC Cidadão da Polícia Militar - Fazer Denúncias", color: "bg-emerald-600", icon: "👮", click: "abrirPMSC()" },
+                        { label: "Registrar Boletim de Ocorrência (B.O.) na Polícia Civil - Fazer Denúncias", color: "bg-red-600", icon: "📑", click: "window.open('https://delegaciavirtual.sc.gov.br/')" },
+                        { label: "Polícia Rodoviária Federal - Acidente sem vítimas", color: "bg-blue-700", icon: "🚔", click: "window.open('https://comunicante.prf.gov.br/declarante/declaracao', '_blank')" },
+                        { label: "Sistema SINAL da PRF - Incluir veículo roubado", color: "bg-rose-900", icon: "🚔", click: "window.open('https://sicop.prf.gov.br/sicop/sinal', '_blank')" },
+                        { label: "APP Corpo de Bombeiros Militar", color: "bg-red-700", icon: "🚒", click: "abrirBombeiros()" },
+                        { label: "Denunciar SITES de INTERNET (Crimes contra direitos humanos)", color: "bg-red-800", icon: "🌐", click: "window.open('https://new.safernet.org.br/denuncie', '_blank')" }
+                    ]
+                },
+                {
+                    id: "sec-transito",
+                    title: "🚗 2. Trânsito, Veículos e Mobilidade",
+                    subtitle: "Serviços relacionados a veículos, trânsito e deslocamento.",
+                    border: "border-sky-600",
+                    badge: "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200",
+                    buttons: [
+                        { label: "APP SINESP Cidadão (Consultar veículo pela placa)", color: "bg-sky-600", icon: "🚗", click: "abrirSinesp()" },
+                        { label: "Detran SC", color: "bg-blue-900", icon: "🪪", click: "window.open('https://www.detran.sc.gov.br/', '_blank')" },
+                        { label: "Polícia Rodoviária Federal - Acidente sem vítimas", color: "bg-blue-700", icon: "🚔", click: "window.open('https://comunicante.prf.gov.br/declarante/declaracao', '_blank')" },
+                        { label: "Sistema SINAL da PRF - Incluir veículo roubado", color: "bg-rose-900", icon: "🚔", click: "window.open('https://sicop.prf.gov.br/sicop/sinal', '_blank')" },
+                        { label: "Localizar GUINCHOS, MECÂNICAS, AUTOELÉTRICAS ou BORRACHARIAS - 24 horas", color: "bg-amber-600", icon: "🛠️", click: "openServiceSelectionModal()" }
+                    ]
+                },
+                {
+                    id: "sec-documentos",
+                    title: "🆔 3. Documentos e Identificação",
+                    subtitle: "Emissão, recuperação e consulta de documentos.",
+                    border: "border-slate-600",
+                    badge: "bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200",
+                    buttons: [
+                        { label: "Polícia Científica (Obter IDENTIDADE)", color: "bg-slate-600", icon: "🆔", click: "window.open('https://www.policiacientifica.sc.gov.br/', '_blank')" },
+                        { label: "Documentos ACHADOS e PERDIDOS", color: "bg-amber-700", icon: "📄", click: "window.open('https://www.acheidocs.com.br/', '_blank')" },
+                        { label: "Detran SC", color: "bg-blue-900", icon: "🪪", click: "window.open('https://www.detran.sc.gov.br/', '_blank')" }
+                    ]
+                },
+                {
+                    id: "sec-servicos",
+                    title: "🏠 4. Serviços Públicos Essenciais",
+                    subtitle: "Serviços municipais e estaduais de utilidade pública.",
+                    border: "border-teal-600",
+                    badge: "bg-teal-100 text-teal-800 dark:bg-teal-900/40 dark:text-teal-200",
+                    buttons: [
+                        { label: "Telefones de SERVIÇOS", color: "bg-teal-600", icon: "🛠️", click: "setScreen('servicos')" },
+                        { label: "APP ÁGUAS DE JOINVILLE", color: "bg-sky-600", icon: "💧", click: "window.open('https://aguasdejoinville.com.br/novoatendimento/#/configuration/', '_blank')" },
+                        { label: "APP CELESC", color: "bg-yellow-600", icon: "⚡", click: "abrirCelesc()" },
+                        { label: "Defesa Civil SC", color: "bg-amber-500", icon: "🛡️", click: "window.open('https://www.defesacivil.sc.gov.br/', '_blank')" },
+                        { label: "Abrir OUVIDORIA na Prefeitura de Joinville (JOINVILLE FÁCIL)", color: "bg-indigo-600", icon: "🏢", click: "window.open('https://facil.joinville.sc.gov.br/')" }
+                    ]
+                },
+                {
+                    id: "sec-conseg",
+                    title: "📣 5. Participação Comunitária e Cidadania",
+                    subtitle: "Ferramentas para atuação da comunidade e relacionamento com o CONSEG.",
+                    border: "border-purple-600",
+                    badge: "bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200",
+                    buttons: [
+                        { label: "Registrar no CONSEG a OUVIDORIA da Prefeitura de Joinville", color: "bg-orange-600", icon: "📝", click: "setScreen('ouvidoria')" },
+                        { label: "Agenda do CONSEG", color: "bg-purple-600", icon: "📅", click: "setScreen('agenda')" },
+                        { label: "Compartilhe o JOINVILLE SEGURA", color: "bg-blue-900", icon: "📢", click: "shareJoinvilleSegura()" }
+                    ]
+                },
+                {
+                    id: "sec-utilidades",
+                    title: "📱 6. Utilidades do Dia a Dia",
+                    subtitle: "Ferramentas práticas para o cidadão.",
+                    border: "border-cyan-600",
+                    badge: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-200",
+                    buttons: [
+                        { label: "Descobrir minha Localização aproximada", color: "bg-lime-600", icon: "📍", click: "openGoogleMaps()" },
+                        { label: "Enviar mensagem para um número WhatsApp", color: "bg-green-500", icon: "💬", click: "sendWhatsAppMessage()" },
+                        { label: "Inteligência Artificial ChatGPT (pergunte qualquer coisa)", color: "bg-cyan-600", icon: "🤖", click: "window.open('https://chatgpt.com/')" },
+                        { label: "Telefones de SERVIÇOS", color: "bg-teal-600", icon: "🛠️", click: "setScreen('servicos')" }
+                    ]
+                },
+                {
+                    id: "sec-patrimonio",
+                    title: "🚲 7. Proteção Patrimonial",
+                    subtitle: "Cadastro e proteção de bens.",
+                    border: "border-emerald-800",
+                    badge: "bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200",
+                    buttons: [
+                        { label: "APP BIKE REGISTRADA", color: "bg-emerald-900", icon: "🚲", click: "abrirBikeRegistrada()" },
+                        { label: "APP SINESP Cidadão (Consultar veículo pela placa)", color: "bg-sky-600", icon: "🚗", click: "abrirSinesp()" }
+                    ]
+                }
+            ];
 
             return `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
-                    ${buttons.map(b => `
-                        <button onclick="${b.click}" class="${b.color} text-white p-6 rounded-2xl shadow-xl flex items-center gap-4 text-left elderly-text min-h-[110px] hover:scale-[1.02] transition-transform">
-                            <span class="text-4xl bg-white/20 p-2 rounded-xl">${b.icon}</span>
-                            <span>${b.label}</span>
+                <div class="space-y-6 animate-fade-in">
+                    ${state.showInstallBtn ? `
+                        <button onclick="installApp()" class="w-full bg-primary text-white p-6 rounded-2xl shadow-xl flex items-center gap-4 text-left elderly-text min-h-[100px] hover:scale-[1.01] transition-transform">
+                            <span class="text-4xl bg-white/20 p-2 rounded-xl">📲</span>
+                            <span>Instalar acesso ao JOINVILLE SEGURA</span>
                         </button>
+                    ` : ''}
+
+                    <!-- Menu Principal Intuitivo (Acesso Rápido por Área) -->
+                    <section class="bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-3xl shadow-lg border border-blue-100 dark:border-gray-700">
+                        <h2 class="text-lg sm:text-xl font-extrabold text-primary dark:text-blue-400 uppercase tracking-tight mb-3 flex items-center gap-2">
+                            <span>⭐</span> Menu Principal por Área
+                        </h2>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                            ${quickMenu.map(item => `
+                                <button onclick="${item.click}" class="${item.color} text-white p-3 rounded-2xl shadow-md flex items-center gap-2.5 text-left font-bold text-sm sm:text-base min-h-[56px] hover:scale-[1.02] transition-transform">
+                                    <span class="text-2xl shrink-0">${item.icon}</span>
+                                    <span class="leading-tight">${item.label}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </section>
+
+                    <!-- Áreas Agrupadas -->
+                    ${sections.map(sec => `
+                        <section id="${sec.id}" class="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-3xl shadow-lg border-t-8 ${sec.border} transition-all duration-300">
+                            <div class="flex items-start justify-between gap-3 mb-1">
+                                <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900 dark:text-white leading-snug">
+                                    ${sec.title}
+                                </h2>
+                                <button onclick="scrollHomeToTop()" class="shrink-0 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-gray-700 text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="Voltar ao topo">
+                                    ⬆️ Topo
+                                </button>
+                            </div>
+                            <p class="text-sm sm:text-base font-semibold text-gray-500 dark:text-gray-400 mb-4">
+                                ${sec.subtitle}
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                ${sec.buttons.map(b => `
+                                    <button onclick="${b.click}" class="${b.color} text-white p-6 rounded-2xl shadow-xl flex items-center gap-4 text-left elderly-text min-h-[110px] hover:scale-[1.02] transition-transform">
+                                        <span class="text-4xl bg-white/20 p-2 rounded-xl shrink-0">${b.icon}</span>
+                                        <span>${b.label}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </section>
                     `).join('')}
                 </div>
             `;
